@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        .weather-result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather App</h1>
+        <input type="text" id="city" placeholder="Enter city name" />
+        <button onclick="getWeather()">Get Weather</button>
+        <div id="result" class="weather-result"></div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $("#city").autocomplete({
+                source: async function(request, response) {
+                    const res = await fetch(`/autocomplete?query=${request.term}`);
+                    const data = await res.json();
+                    response(data);
+                },
+                minLength: 2,
+                select: function(event, ui) {
+                    $("#city").val(ui.item.label);
+                    return false;
+                }
+            });
+        });
+
+        async function getWeather() {
+            const city = document.getElementById('city').value;
+            const response = await fetch(`/weather?city=${city}`);
+            const resultDiv = document.getElementById('result');
+            if (response.ok) {
+                const data = await response.text();
+                resultDiv.innerHTML = `<p>${data}</p>`;
+            } else {
+                resultDiv.innerHTML = `<p>Could not fetch weather data</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
